@@ -38,7 +38,7 @@ Built with **Expo / React Native** and **Firebase**.
 | Backend | Firebase — Auth, Firestore, Storage |
 | State | [Zustand](https://github.com/pmndrs/zustand) |
 | Navigation | React Navigation (native-stack + bottom-tabs) |
-| UI | React Native Paper, react-native-vector-icons |
+| UI | React Native Paper, @react-native-vector-icons/material-design-icons |
 | Chat | react-native-gifted-chat |
 | Calendar | react-native-calendars |
 | Video | expo-av |
