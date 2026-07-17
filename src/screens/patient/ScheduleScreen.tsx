@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Card, Title, Text, Button, Chip, Divider } from 'react-native-paper';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { COLORS } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
 import { useScheduleStore } from '../../store/scheduleStore';
 import { subscribeToSchedules, updateScheduleStatus } from '../../services/scheduleService';
-import { formatDate, getStatusLabel, getStatusColor } from '../../utils/helpers';
+import { formatDate, getStatusLabel, getStatusColor, confirmDialog } from '../../utils/helpers';
 import { Schedule } from '../../types';
 
 LocaleConfig.locales['ko'] = {
@@ -47,16 +47,10 @@ export default function ScheduleScreen({ navigation }: any) {
     ? schedules.filter((s) => s.date.toDate().toISOString().split('T')[0] === selectedDate)
     : schedules;
 
-  const handleComplete = async (scheduleId: string) => {
-    Alert.alert('운동 완료', '이 운동을 완료로 표시하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '완료',
-        onPress: async () => {
-          await updateScheduleStatus(scheduleId, 'completed');
-        },
-      },
-    ]);
+  const handleComplete = (scheduleId: string) => {
+    confirmDialog('운동 완료', '이 운동을 완료로 표시하시겠습니까?', () => {
+      updateScheduleStatus(scheduleId, 'completed');
+    }, '완료');
   };
 
   return (

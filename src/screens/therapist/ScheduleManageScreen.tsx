@@ -9,7 +9,7 @@ import { useScheduleStore } from '../../store/scheduleStore';
 import {
   createSchedule, deleteSchedule, subscribeToSchedules,
 } from '../../services/scheduleService';
-import { formatDate, getStatusLabel, getStatusColor } from '../../utils/helpers';
+import { formatDate, getStatusLabel, getStatusColor, confirmDialog } from '../../utils/helpers';
 import { Exercise } from '../../types';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
@@ -86,10 +86,9 @@ export default function ScheduleManageScreen({ route, navigation }: any) {
   };
 
   const handleDelete = (scheduleId: string) => {
-    Alert.alert('삭제 확인', '이 스케줄을 삭제하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      { text: '삭제', style: 'destructive', onPress: () => deleteSchedule(scheduleId) },
-    ]);
+    confirmDialog('삭제 확인', '이 스케줄을 삭제하시겠습니까?', () => {
+      deleteSchedule(scheduleId);
+    }, '삭제', true);
   };
 
   const resetForm = () => {

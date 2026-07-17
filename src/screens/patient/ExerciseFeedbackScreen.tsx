@@ -5,6 +5,7 @@ import { COLORS, PAIN_LEVELS, DIFFICULTY_LEVELS } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
 import { createFeedback, getFeedbackBySchedule } from '../../services/feedbackService';
 import { updateScheduleStatus } from '../../services/scheduleService';
+import { notifyDialog } from '../../utils/helpers';
 import { Feedback, Schedule } from '../../types';
 
 function LevelSelector({
@@ -128,9 +129,7 @@ export default function ExerciseFeedbackScreen({ route, navigation }: any) {
       );
       // 스케줄 상태를 완료로 변경
       await updateScheduleStatus(schedule.id, 'completed');
-      Alert.alert('완료', '피드백이 전송되었습니다.', [
-        { text: '확인', onPress: () => navigation.goBack() },
-      ]);
+      notifyDialog('완료', '피드백이 전송되었습니다.', () => navigation.goBack());
     } catch (e) {
       console.log('피드백 전송 에러:', e);
       Alert.alert('오류', '피드백 전송에 실패했습니다. 다시 시도해주세요.');

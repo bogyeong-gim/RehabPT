@@ -1,4 +1,52 @@
+import { Alert, Platform } from 'react-native';
 import { Timestamp } from 'firebase/firestore';
+
+/**
+ * 크로스 플랫폼 확인 다이얼로그.
+ * react-native-web에서는 Alert.alert의 버튼/onPress가 동작하지 않으므로
+ * 웹에서는 window.confirm으로, 네이티브에서는 Alert.alert으로 처리한다.
+ * 사용자가 확인을 누르면 onConfirm이 실행된다.
+ */
+export const confirmDialog = (
+  title: string,
+  message: string,
+  onConfirm: () => void,
+  confirmText: string = '확인',
+  destructive: boolean = false,
+): void => {
+  if (Platform.OS === 'web') {
+    if (window.confirm(message ? `${title}\n\n${message}` : title)) {
+      onConfirm();
+    }
+    return;
+  }
+  Alert.alert(title, message, [
+    { text: '취소', style: 'cancel' },
+    {
+      text: confirmText,
+      style: destructive ? 'destructive' : 'default',
+      onPress: onConfirm,
+    },
+  ]);
+};
+
+/**
+ * 크로스 플랫폼 알림 다이얼로그.
+ * 웹에서는 window.alert 이후, 네이티브에서는 확인 버튼의 onPress로 onClose를 실행한다.
+ * 정보성 알림을 띄운 뒤 화면 전환 등 후속 동작이 필요할 때 사용한다.
+ */
+export const notifyDialog = (
+  title: string,
+  message: string,
+  onClose?: () => void,
+): void => {
+  if (Platform.OS === 'web') {
+    window.alert(message ? `${title}\n\n${message}` : title);
+    onClose?.();
+    return;
+  }
+  Alert.alert(title, message, [{ text: '확인', onPress: onClose }]);
+};
 
 export const formatDate = (timestamp: Timestamp): string => {
   const date = timestamp.toDate();

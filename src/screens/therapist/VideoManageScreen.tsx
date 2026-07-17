@@ -4,6 +4,7 @@ import {
   Card, Title, Text, TextInput, Button, FAB, Portal, Modal, Chip, IconButton,
 } from 'react-native-paper';
 import { COLORS, EXERCISE_CATEGORIES } from '../../utils/constants';
+import { confirmDialog } from '../../utils/helpers';
 import { useAuthStore } from '../../store/authStore';
 import { createVideo, deleteVideo, getAllVideos } from '../../services/videoService';
 import { Video } from '../../types';
@@ -48,17 +49,10 @@ export default function VideoManageScreen() {
   };
 
   const handleDelete = (videoId: string) => {
-    Alert.alert('삭제 확인', '이 영상을 삭제하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteVideo(videoId);
-          loadVideos();
-        },
-      },
-    ]);
+    confirmDialog('삭제 확인', '이 영상을 삭제하시겠습니까?', async () => {
+      await deleteVideo(videoId);
+      loadVideos();
+    }, '삭제', true);
   };
 
   return (
