@@ -110,6 +110,30 @@ service cloud.firestore {
       );
     }
 
+    // ---------- 치료 일지 ----------
+    match /logs/{logId} {
+      allow read: if isSignedIn() && (
+        resource.data.therapistId == request.auth.uid ||
+        resource.data.patientId == request.auth.uid ||
+        isAdmin()
+      );
+
+      // 작성: 담당 치료사가 본인 명의로만
+      allow create: if isTherapist()
+        && request.resource.data.therapistId == request.auth.uid;
+
+      // 수정: 작성 치료사는 전체, 대상 환자는 좋아요(likedBy)만
+      allow update: if isSignedIn() && (
+        resource.data.therapistId == request.auth.uid ||
+        (resource.data.patientId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedBy']))
+      );
+
+      allow delete: if isSignedIn() && (
+        resource.data.therapistId == request.auth.uid || isAdmin()
+      );
+    }
+
     // ---------- 운동 영상 ----------
     match /videos/{videoId} {
       allow read: if isSignedIn();                       // 로그인 사용자 열람

@@ -65,11 +65,12 @@ export default function TherapistHomeScreen({ navigation }: any) {
       <View style={styles.body}>
         <Text style={styles.sectionTitle}>빠른 메뉴</Text>
         <View style={styles.menuGrid}>
-          <MenuItem icon="account-group-outline" tint={COLORS.tintTeal} color={COLORS.primary} label="환자 목록" onPress={() => navigation.navigate('PatientListTab')} />
-          <MenuItem icon="calendar-plus" tint={COLORS.tintGreen} color={COLORS.success} label="스케줄 관리" onPress={() => navigation.navigate('ScheduleManageTab')} />
-          <MenuItem icon="clipboard-text-outline" tint={COLORS.tintAmber} color={COLORS.warning} label="피드백 확인" onPress={() => navigation.navigate('FeedbackReviewTab')} />
-          <MenuItem icon="chat-outline" tint={COLORS.tintBlue} color={COLORS.info} label="메시지" onPress={() => navigation.navigate('ChatTab')} />
-          <MenuItem icon="video-outline" tint={COLORS.tintRose} color={COLORS.danger} label="영상 관리" onPress={() => navigation.navigate('VideoManageTab')} />
+          <MenuItem icon="account-group-outline" tint={COLORS.tintTeal} color={COLORS.primary} label="회원 관리" onPress={() => navigation.navigate('PatientListTab')} />
+          <MenuItem icon="calendar-month-outline" tint={COLORS.tintGreen} color={COLORS.success} label="스케줄" onPress={() => navigation.navigate('ScheduleManageTab')} />
+          <MenuItem icon="notebook-outline" tint={COLORS.tintTeal} color={COLORS.primary} label="일지 피드" onPress={() => navigation.navigate('LogFeedTab')} />
+          <MenuItem icon="clipboard-text-outline" tint={COLORS.tintAmber} color={COLORS.warning} label="피드백 확인" onPress={() => navigation.navigate('FeedbackReview')} />
+          <MenuItem icon="chat-outline" tint={COLORS.tintBlue} color={COLORS.info} label="채팅" onPress={() => navigation.navigate('ChatTab')} />
+          <MenuItem icon="video-outline" tint={COLORS.tintRose} color={COLORS.danger} label="영상 관리" onPress={() => navigation.navigate('VideoManage')} />
         </View>
 
         {recentFeedbacks.length > 0 && (

@@ -62,6 +62,19 @@ export interface Review {
   createdAt: Timestamp;
 }
 
+export interface TreatmentLog {
+  id: string;
+  therapistId: string;
+  therapistName: string;
+  patientId: string;
+  patientName: string;
+  sessionNumber: number; // 회차
+  sessionDate: Timestamp; // 치료 진행 날짜
+  content: string;
+  likedBy: string[];
+  createdAt: Timestamp;
+}
+
 export interface ChatRoom {
   id: string;
   participants: string[];

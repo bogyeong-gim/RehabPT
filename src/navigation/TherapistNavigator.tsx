@@ -5,6 +5,7 @@ import TherapistHomeScreen from '../screens/therapist/TherapistHomeScreen';
 import PatientListScreen from '../screens/therapist/PatientListScreen';
 import ScheduleManageScreen from '../screens/therapist/ScheduleManageScreen';
 import WeeklyScheduleScreen from '../screens/therapist/WeeklyScheduleScreen';
+import LogFeedScreen from '../screens/therapist/LogFeedScreen';
 import FeedbackReviewScreen from '../screens/therapist/FeedbackReviewScreen';
 import VideoManageScreen from '../screens/therapist/VideoManageScreen';
 import ChatListScreen from '../screens/chat/ChatListScreen';
@@ -18,6 +19,8 @@ function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="TherapistHome" component={TherapistHomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="FeedbackReview" component={FeedbackReviewScreen} options={{ title: '피드백 확인' }} />
+      <Stack.Screen name="VideoManage" component={VideoManageScreen} options={{ title: '영상 관리' }} />
     </Stack.Navigator>
   );
 }
@@ -25,7 +28,7 @@ function HomeStack() {
 function PatientStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="PatientList" component={PatientListScreen} options={{ title: '환자 목록' }} />
+      <Stack.Screen name="PatientList" component={PatientListScreen} options={{ title: '내 회원', headerShown: false }} />
       <Stack.Screen name="ScheduleManage" component={ScheduleManageScreen} options={{ title: '스케줄 관리' }} />
     </Stack.Navigator>
   );
@@ -40,10 +43,10 @@ function ScheduleStack() {
   );
 }
 
-function FeedbackStack() {
+function LogFeedStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="FeedbackReview" component={FeedbackReviewScreen} options={{ title: '피드백 확인' }} />
+      <Stack.Screen name="LogFeedMain" component={LogFeedScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -61,14 +64,6 @@ function ChatStack() {
   );
 }
 
-function VideoStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen name="VideoManage" component={VideoManageScreen} options={{ title: '영상 관리' }} />
-    </Stack.Navigator>
-  );
-}
-
 export default function TherapistNavigator() {
   return (
     <Tab.Navigator
@@ -79,36 +74,11 @@ export default function TherapistNavigator() {
         tabBarStyle: { paddingBottom: 6, height: 56 },
       }}
     >
-      <Tab.Screen
-        name="HomeTab"
-        component={HomeStack}
-        options={{ tabBarLabel: '홈', tabBarIcon: () => null }}
-      />
-      <Tab.Screen
-        name="PatientListTab"
-        component={PatientStack}
-        options={{ tabBarLabel: '환자', tabBarIcon: () => null }}
-      />
-      <Tab.Screen
-        name="ScheduleManageTab"
-        component={ScheduleStack}
-        options={{ tabBarLabel: '스케줄', tabBarIcon: () => null }}
-      />
-      <Tab.Screen
-        name="FeedbackReviewTab"
-        component={FeedbackStack}
-        options={{ tabBarLabel: '피드백', tabBarIcon: () => null }}
-      />
-      <Tab.Screen
-        name="ChatTab"
-        component={ChatStack}
-        options={{ tabBarLabel: '메시지', tabBarIcon: () => null }}
-      />
-      <Tab.Screen
-        name="VideoManageTab"
-        component={VideoStack}
-        options={{ tabBarLabel: '영상', tabBarIcon: () => null }}
-      />
+      <Tab.Screen name="HomeTab" component={HomeStack} options={{ tabBarLabel: '홈', tabBarIcon: () => null }} />
+      <Tab.Screen name="ScheduleManageTab" component={ScheduleStack} options={{ tabBarLabel: '스케줄', tabBarIcon: () => null }} />
+      <Tab.Screen name="LogFeedTab" component={LogFeedStack} options={{ tabBarLabel: '일지 피드', tabBarIcon: () => null }} />
+      <Tab.Screen name="PatientListTab" component={PatientStack} options={{ tabBarLabel: '회원 관리', tabBarIcon: () => null }} />
+      <Tab.Screen name="ChatTab" component={ChatStack} options={{ tabBarLabel: '채팅', tabBarIcon: () => null }} />
     </Tab.Navigator>
   );
 }
