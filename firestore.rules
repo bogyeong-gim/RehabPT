@@ -1,0 +1,121 @@
+rules_version = '2';
+
+// 새늘(RehabPT) Firestore 보안 규칙
+// 기본 원칙: 로그인하지 않은 접근은 전면 차단, 각자 관련된 데이터만 접근.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- 헬퍼 ----------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function meExists() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    function me() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function hasRole(role) {
+      return meExists() && me().role == role;
+    }
+    function isAdmin() { return hasRole('admin'); }
+    function isTherapist() { return hasRole('therapist'); }
+
+    // ---------- 사용자 프로필 ----------
+    match /users/{userId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == userId ||                                   // 본인
+        isAdmin() ||                                                    // 관리자
+        (isTherapist() && resource.data.therapistId == request.auth.uid) || // 담당 치료사 → 자기 환자
+        (resource.data.role == 'therapist' && meExists() && me().therapistId == userId) // 환자 → 담당 치료사
+      );
+
+      // 회원가입: 본인 문서만 생성, 스스로 관리자 권한 부여 금지
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role in ['patient', 'therapist'];
+
+      // 수정: 본인(역할 변경은 금지) 또는 관리자
+      allow update: if isSignedIn() && (
+        (request.auth.uid == userId && request.resource.data.role == resource.data.role) ||
+        isAdmin()
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // ---------- 치료 스케줄 ----------
+    match /schedules/{scheduleId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.therapistId == request.auth.uid ||
+        isAdmin()
+      );
+
+      // 생성: 치료사가 본인 명의로만
+      allow create: if isTherapist()
+        && request.resource.data.therapistId == request.auth.uid;
+
+      // 수정: 담당 치료사는 전체, 환자는 상태(status)만 변경 가능
+      allow update: if isSignedIn() && (
+        resource.data.therapistId == request.auth.uid ||
+        (resource.data.patientId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+      );
+
+      allow delete: if isSignedIn() && (
+        resource.data.therapistId == request.auth.uid || isAdmin()
+      );
+    }
+
+    // ---------- 운동 피드백 ----------
+    match /feedbacks/{feedbackId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.therapistId == request.auth.uid ||
+        isAdmin()
+      );
+
+      // 생성: 환자가 본인 명의로만
+      allow create: if isSignedIn()
+        && request.resource.data.patientId == request.auth.uid;
+
+      // 수정(치료사 코멘트 등): 담당 치료사 또는 관리자
+      allow update: if isSignedIn() && (
+        resource.data.therapistId == request.auth.uid || isAdmin()
+      );
+
+      allow delete: if isSignedIn() && (
+        resource.data.therapistId == request.auth.uid || isAdmin()
+      );
+    }
+
+    // ---------- 운동 영상 ----------
+    match /videos/{videoId} {
+      allow read: if isSignedIn();                       // 로그인 사용자 열람
+      allow create, update, delete: if isTherapist() || isAdmin(); // 치료사/관리자만 관리
+    }
+
+    // ---------- 채팅방 ----------
+    match /chatRooms/{roomId} {
+      allow read: if isSignedIn()
+        && request.auth.uid in resource.data.participants;
+      allow create: if isSignedIn()
+        && request.auth.uid in request.resource.data.participants;
+      allow update: if isSignedIn()
+        && request.auth.uid in resource.data.participants;
+      allow delete: if isAdmin();
+
+      // 메시지 서브컬렉션: 채팅방 참여자만
+      match /messages/{messageId} {
+        function participants() {
+          return get(/databases/$(database)/documents/chatRooms/$(roomId)).data.participants;
+        }
+        allow read, create, update: if isSignedIn()
+          && request.auth.uid in participants();
+        allow delete: if isAdmin();
+      }
+    }
+  }
+}

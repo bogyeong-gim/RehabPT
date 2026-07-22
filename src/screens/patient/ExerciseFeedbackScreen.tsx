@@ -80,8 +80,9 @@ export default function ExerciseFeedbackScreen({ route, navigation }: any) {
   }, []);
 
   const loadExistingFeedback = async () => {
+    if (!user) return;
     try {
-      const feedback = await getFeedbackBySchedule(schedule.id);
+      const feedback = await getFeedbackBySchedule(schedule.id, user.id);
       if (feedback) {
         setExistingFeedback(feedback);
         setPainLevel(feedback.painLevel);

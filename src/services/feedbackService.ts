@@ -50,12 +50,15 @@ export const addTherapistComment = async (
   });
 };
 
-export const getFeedbackBySchedule = async (scheduleId: string): Promise<Feedback | null> => {
-  const q = query(collection(db, COLLECTION), where('scheduleId', '==', scheduleId));
+export const getFeedbackBySchedule = async (
+  scheduleId: string,
+  patientId: string,
+): Promise<Feedback | null> => {
+  // 보안 규칙과 맞추기 위해 patientId(소유자)로 스코프 후 scheduleId를 클라이언트에서 매칭
+  const q = query(collection(db, COLLECTION), where('patientId', '==', patientId));
   const snapshot = await getDocs(q);
-  if (snapshot.empty) return null;
-  const feedbackDoc = snapshot.docs[0];
-  return { id: feedbackDoc.id, ...feedbackDoc.data() } as Feedback;
+  const match = snapshot.docs.find((d) => d.data().scheduleId === scheduleId);
+  return match ? ({ id: match.id, ...match.data() } as Feedback) : null;
 };
 
 export const getPatientFeedbacks = async (patientId: string): Promise<Feedback[]> => {
