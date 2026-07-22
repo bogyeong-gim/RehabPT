@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TherapistHomeScreen from '../screens/therapist/TherapistHomeScreen';
 import PatientListScreen from '../screens/therapist/PatientListScreen';
 import ScheduleManageScreen from '../screens/therapist/ScheduleManageScreen';
+import WeeklyScheduleScreen from '../screens/therapist/WeeklyScheduleScreen';
 import FeedbackReviewScreen from '../screens/therapist/FeedbackReviewScreen';
 import VideoManageScreen from '../screens/therapist/VideoManageScreen';
 import ChatListScreen from '../screens/chat/ChatListScreen';
@@ -33,6 +34,7 @@ function PatientStack() {
 function ScheduleStack() {
   return (
     <Stack.Navigator>
+      <Stack.Screen name="WeeklySchedule" component={WeeklyScheduleScreen} options={{ headerShown: false }} />
       <Stack.Screen name="ScheduleManageMain" component={ScheduleManageScreen} options={{ title: '스케줄 관리' }} />
     </Stack.Navigator>
   );
