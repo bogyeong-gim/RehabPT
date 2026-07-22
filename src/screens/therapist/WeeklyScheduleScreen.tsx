@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Text, IconButton, Portal, Modal, Button, Chip, Avatar } from 'react-native-paper';
+import { Text, IconButton, Portal, Modal, Button, Avatar, FAB } from 'react-native-paper';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
 import { COLORS, SPACING, RADIUS, SHADOWS, TYPO } from '../../utils/constants';
@@ -113,17 +113,11 @@ export default function WeeklyScheduleScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* 범례 + 등록 */}
-        <View style={styles.legendRow}>
-          <View style={styles.legend}>
-            <LegendItem color={getStatusColor('pending')} label="예정" />
-            <LegendItem color={getStatusColor('completed')} label="완료" />
-            <LegendItem color={getStatusColor('missed')} label="미수행" />
-          </View>
-          <Pressable style={styles.addBtn} onPress={() => navigation.navigate('ScheduleManageMain')}>
-            <IconButton icon="plus" size={16} iconColor={COLORS.white} style={styles.addBtnIcon} />
-            <Text style={styles.addBtnText}>일정 등록</Text>
-          </Pressable>
+        {/* 범례 */}
+        <View style={styles.legend}>
+          <LegendItem color={getStatusColor('pending')} label="예정" />
+          <LegendItem color={getStatusColor('completed')} label="완료" />
+          <LegendItem color={getStatusColor('missed')} label="미수행(노쇼)" />
         </View>
       </View>
 
@@ -179,6 +173,13 @@ export default function WeeklyScheduleScreen({ navigation }: any) {
           </View>
         ))}
       </ScrollView>
+
+      <FAB
+        icon="plus"
+        style={styles.fab}
+        color={COLORS.white}
+        onPress={() => navigation.navigate('ScheduleManageMain')}
+      />
 
       {/* 상세 모달 */}
       <Portal>
@@ -296,23 +297,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.mint,
   },
   todayBtnText: { ...TYPO.caption, color: COLORS.primaryDark, fontWeight: '700' },
-  legendRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: SPACING.md,
-  },
-  legend: { flexDirection: 'row', gap: SPACING.lg },
-  addBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.pill,
-    paddingRight: SPACING.md,
-  },
-  addBtnIcon: { margin: 0 },
-  addBtnText: { ...TYPO.caption, color: COLORS.white, fontWeight: '700' },
+  legend: { flexDirection: 'row', gap: SPACING.lg, marginTop: SPACING.md },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  fab: { position: 'absolute', right: SPACING.lg, bottom: SPACING.lg, backgroundColor: COLORS.primary },
   legendDot: { width: 10, height: 10, borderRadius: 5 },
   legendLabel: { ...TYPO.caption, color: COLORS.textSecondary },
 
