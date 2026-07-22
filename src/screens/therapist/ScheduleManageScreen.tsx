@@ -9,7 +9,7 @@ import { useScheduleStore } from '../../store/scheduleStore';
 import {
   createSchedule, deleteSchedule, subscribeToSchedules,
 } from '../../services/scheduleService';
-import { formatDate, getStatusLabel, getStatusColor, confirmDialog } from '../../utils/helpers';
+import { formatDateTime, getStatusLabel, getStatusColor, confirmDialog } from '../../utils/helpers';
 import { Exercise } from '../../types';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
@@ -20,7 +20,8 @@ export default function ScheduleManageScreen({ route, navigation }: any) {
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [dateStr, setDateStr] = useState('');
+  const [dateStr, setDateStr] = useState(new Date().toISOString().split('T')[0]);
+  const [timeStr, setTimeStr] = useState('10:00');
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exName, setExName] = useState('');
   const [exSets, setExSets] = useState('3');
@@ -68,7 +69,8 @@ export default function ScheduleManageScreen({ route, navigation }: any) {
     }
     setLoading(true);
     try {
-      const date = new Date(dateStr);
+      const time = /^\d{1,2}:\d{2}$/.test(timeStr) ? timeStr : '10:00';
+      const date = new Date(`${dateStr}T${time}:00`);
       if (isNaN(date.getTime())) {
         Alert.alert('알림', '날짜 형식이 올바르지 않습니다. (예: 2026-07-10)');
         setLoading(false);
@@ -94,7 +96,8 @@ export default function ScheduleManageScreen({ route, navigation }: any) {
   const resetForm = () => {
     setTitle('');
     setDescription('');
-    setDateStr('');
+    setDateStr(new Date().toISOString().split('T')[0]);
+    setTimeStr('10:00');
     setExercises([]);
     setExName('');
     setExDuration('');
@@ -158,7 +161,7 @@ export default function ScheduleManageScreen({ route, navigation }: any) {
                       <IconButton icon="delete" size={18} onPress={() => handleDelete(s.id)} />
                     </View>
                   </View>
-                  <Text style={styles.cardDate}>{formatDate(s.date)}</Text>
+                  <Text style={styles.cardDate}>{formatDateTime(s.date)}</Text>
                   <Text style={styles.cardExercises}>운동 {s.exercises.length}개</Text>
                 </Card.Content>
               </Card>
@@ -213,13 +216,37 @@ export default function ScheduleManageScreen({ route, navigation }: any) {
               multiline
               style={styles.input}
             />
-            <TextInput
-              label="날짜 (예: 2026-07-10)"
-              value={dateStr}
-              onChangeText={setDateStr}
-              mode="outlined"
-              style={styles.input}
-            />
+            <View style={styles.dateTimeRow}>
+              <TextInput
+                label="날짜 (2026-07-10)"
+                value={dateStr}
+                onChangeText={setDateStr}
+                mode="outlined"
+                style={[styles.input, { flex: 3 }]}
+              />
+              <TextInput
+                label="시간"
+                value={timeStr}
+                onChangeText={setTimeStr}
+                mode="outlined"
+                placeholder="10:00"
+                style={[styles.input, { flex: 2 }]}
+              />
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
+              {['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map((t) => (
+                <Chip
+                  key={t}
+                  selected={timeStr === t}
+                  onPress={() => setTimeStr(t)}
+                  style={[styles.timeChip, timeStr === t && styles.filterChipActive]}
+                  textStyle={{ color: timeStr === t ? COLORS.white : COLORS.textPrimary, fontSize: 12 }}
+                  compact
+                >
+                  {t}
+                </Chip>
+              ))}
+            </ScrollView>
 
             <Divider style={{ marginVertical: 12 }} />
             <Text style={styles.label}>운동 추가</Text>
@@ -299,6 +326,8 @@ const styles = StyleSheet.create({
   cardPatient: { fontSize: 13, color: COLORS.primary },
   cardActions: { flexDirection: 'row', alignItems: 'center' },
   cardDate: { fontSize: 13, color: COLORS.textSecondary, marginTop: 4 },
+  dateTimeRow: { flexDirection: 'row', gap: 8 },
+  timeChip: { marginRight: 6, backgroundColor: COLORS.light },
   cardExercises: { fontSize: 13, color: COLORS.textSecondary, marginTop: 2 },
   fab: {
     position: 'absolute',
