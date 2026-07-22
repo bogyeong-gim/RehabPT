@@ -5,9 +5,28 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
+import {
+  doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, Timestamp,
+} from 'firebase/firestore';
 import { auth, db } from '../../firebaseConfig';
 import { User, UserRole } from '../types';
+
+/** 이메일로 사용자 조회 (회원 등록용) */
+export const findUserByEmail = async (email: string): Promise<User | null> => {
+  const q = query(collection(db, 'users'), where('email', '==', email.trim()));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
+  const d = snapshot.docs[0];
+  return { id: d.id, ...d.data() } as User;
+};
+
+/** 환자를 담당 치료사로 배정 */
+export const assignPatientToTherapist = async (
+  patientId: string,
+  therapistId: string,
+): Promise<void> => {
+  await updateDoc(doc(db, 'users', patientId), { therapistId });
+};
 
 export const registerUser = async (
   email: string,

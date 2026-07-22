@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, FlatList, Pressable } from 'react-native';
-import { Text, Searchbar, Avatar } from 'react-native-paper';
+import { Text, Searchbar, Avatar, FAB, Portal, Modal, TextInput, Button } from 'react-native-paper';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
 import { COLORS, SPACING, RADIUS, SHADOWS, TYPO } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
 import { getTherapistSchedules } from '../../services/scheduleService';
+import { findUserByEmail, assignPatientToTherapist } from '../../services/authService';
+import { notifyDialog } from '../../utils/helpers';
 import { User, Schedule } from '../../types';
 
 type SortKey = 'upcoming' | 'name';
@@ -23,10 +25,45 @@ export default function PatientListScreen({ navigation }: any) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('upcoming');
   const [loading, setLoading] = useState(true);
+  const [addVisible, setAddVisible] = useState(false);
+  const [addEmail, setAddEmail] = useState('');
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     load();
   }, []);
+
+  const handleAddMember = async () => {
+    if (!user || !addEmail.trim()) {
+      notifyDialog('알림', '회원 이메일을 입력해주세요.');
+      return;
+    }
+    setAdding(true);
+    try {
+      const found = await findUserByEmail(addEmail);
+      if (!found || found.role !== 'patient') {
+        notifyDialog('찾을 수 없음', '해당 이메일의 회원(환자) 계정을 찾을 수 없습니다.');
+        return;
+      }
+      if (found.therapistId === user.id) {
+        notifyDialog('알림', '이미 담당 중인 회원입니다.');
+        return;
+      }
+      if (found.therapistId) {
+        notifyDialog('등록 불가', '이미 다른 담당자에게 배정된 회원입니다.');
+        return;
+      }
+      await assignPatientToTherapist(found.id, user.id);
+      setAddVisible(false);
+      setAddEmail('');
+      notifyDialog('완료', `${found.name} 회원을 담당으로 등록했습니다.`);
+      load();
+    } catch {
+      notifyDialog('오류', '회원 등록에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setAdding(false);
+    }
+  };
 
   const load = async () => {
     if (!user) return;
@@ -144,7 +181,7 @@ export default function PatientListScreen({ navigation }: any) {
         <Text style={styles.emptyText}>로딩 중...</Text>
       ) : list.length === 0 ? (
         <Text style={styles.emptyText}>
-          {searchQuery ? '검색 결과가 없습니다.' : '담당 회원이 없습니다.'}
+          {searchQuery ? '검색 결과가 없습니다.' : '담당 회원이 없습니다.\n오른쪽 아래 버튼으로 회원을 등록하세요.'}
         </Text>
       ) : (
         <FlatList
@@ -154,6 +191,39 @@ export default function PatientListScreen({ navigation }: any) {
           contentContainerStyle={styles.listContent}
         />
       )}
+
+      <FAB icon="account-plus" label="회원 등록" style={styles.fab} color={COLORS.white} onPress={() => setAddVisible(true)} />
+
+      <Portal>
+        <Modal visible={addVisible} onDismiss={() => setAddVisible(false)} contentContainerStyle={styles.modal}>
+          <Text style={styles.modalTitle}>회원 등록</Text>
+          <Text style={styles.modalDesc}>
+            등록할 회원의 가입 이메일을 입력하세요. 아직 담당자가 없는 환자 회원만 등록할 수 있습니다.
+          </Text>
+          <TextInput
+            label="회원 이메일"
+            value={addEmail}
+            onChangeText={setAddEmail}
+            mode="outlined"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            outlineColor={COLORS.border}
+            activeOutlineColor={COLORS.primary}
+            style={styles.modalInput}
+          />
+          <Button
+            mode="contained"
+            onPress={handleAddMember}
+            loading={adding}
+            disabled={adding}
+            buttonColor={COLORS.primary}
+            style={styles.modalBtn}
+            contentStyle={{ paddingVertical: SPACING.xs }}
+          >
+            검색 및 등록
+          </Button>
+        </Modal>
+      </Portal>
     </View>
   );
 }
@@ -224,5 +294,13 @@ const styles = StyleSheet.create({
   progressDone: { ...TYPO.h3, color: COLORS.primary },
   progressTotal: { ...TYPO.bodySm, color: COLORS.textSecondary },
   progressLabel: { ...TYPO.caption, color: COLORS.textLight, marginTop: 2 },
-  emptyText: { textAlign: 'center', color: COLORS.textSecondary, marginTop: 40 },
+  emptyText: { textAlign: 'center', color: COLORS.textSecondary, marginTop: 40, lineHeight: 22 },
+  fab: { position: 'absolute', right: SPACING.lg, bottom: SPACING.lg, backgroundColor: COLORS.primary },
+  modal: {
+    backgroundColor: COLORS.surface, margin: SPACING.lg, padding: SPACING.lg, borderRadius: RADIUS.xl,
+  },
+  modalTitle: { ...TYPO.h2, color: COLORS.textPrimary, marginBottom: SPACING.xs },
+  modalDesc: { ...TYPO.bodySm, color: COLORS.textSecondary, marginBottom: SPACING.md, lineHeight: 20 },
+  modalInput: { backgroundColor: COLORS.surface },
+  modalBtn: { marginTop: SPACING.md, borderRadius: RADIUS.md },
 });

@@ -27,7 +27,7 @@ service cloud.firestore {
       allow read: if isSignedIn() && (
         request.auth.uid == userId ||                                   // 본인
         isAdmin() ||                                                    // 관리자
-        (isTherapist() && resource.data.therapistId == request.auth.uid) || // 담당 치료사 → 자기 환자
+        isTherapist() ||                                                // 치료사: 회원 관리/조회
         (resource.data.role == 'therapist' && meExists() && me().therapistId == userId) // 환자 → 담당 치료사
       );
 
@@ -36,10 +36,14 @@ service cloud.firestore {
         && request.auth.uid == userId
         && request.resource.data.role in ['patient', 'therapist'];
 
-      // 수정: 본인(역할 변경은 금지) 또는 관리자
+      // 수정: 본인(역할 변경 금지) / 관리자 / 치료사의 미배정 환자 담당 등록(therapistId만)
       allow update: if isSignedIn() && (
         (request.auth.uid == userId && request.resource.data.role == resource.data.role) ||
-        isAdmin()
+        isAdmin() ||
+        (isTherapist()
+          && resource.data.role == 'patient'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['therapistId'])
+          && (resource.data.therapistId == '' || resource.data.therapistId == request.auth.uid))
       );
 
       allow delete: if isAdmin();
