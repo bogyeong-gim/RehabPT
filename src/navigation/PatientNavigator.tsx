@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PatientHomeScreen from '../screens/patient/PatientHomeScreen';
 import ScheduleScreen from '../screens/patient/ScheduleScreen';
 import ExerciseFeedbackScreen from '../screens/patient/ExerciseFeedbackScreen';
+import ReviewScreen from '../screens/patient/ReviewScreen';
 import VideoListScreen from '../screens/patient/VideoListScreen';
 import ChatListScreen from '../screens/chat/ChatListScreen';
 import ChatRoomScreen from '../screens/chat/ChatRoomScreen';
@@ -19,6 +20,7 @@ function HomeStack() {
       <Stack.Screen name="PatientHome" component={PatientHomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Schedule" component={ScheduleScreen} options={{ title: '스케줄 상세' }} />
       <Stack.Screen name="Feedback" component={ExerciseFeedbackScreen} options={{ title: '운동 피드백' }} />
+      <Stack.Screen name="Review" component={ReviewScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

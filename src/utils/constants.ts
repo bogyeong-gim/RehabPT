@@ -115,6 +115,28 @@ export const PAIN_LEVELS = [
   { value: 10, label: '극심함', color: '#C64C54' },
 ];
 
+// 리뷰 별점 라벨 (1~5)
+export const RATING_LABELS = ['별로였어요', '아쉬웠어요', '괜찮았어요', '좋았어요', '최고였어요'];
+
+// 치료 리뷰 질문 + 빠른 선택 태그
+export const REVIEW_QUESTIONS = [
+  {
+    key: 'guide',
+    question: '첫 상담과 안내 경험은 어떠셨나요?',
+    tags: ['일정 안내가 명확했어요', '친절하게 설명해주셨어요', '대기 시간이 적당했어요', '시설이 깨끗했어요'],
+  },
+  {
+    key: 'treatment',
+    question: '치료 진행은 어떠셨나요?',
+    tags: ['운동 지도가 꼼꼼했어요', '통증을 잘 살펴주셨어요', '난이도가 적절했어요', '설명이 이해하기 쉬웠어요'],
+  },
+  {
+    key: 'overall',
+    question: '전반적으로 만족하셨나요?',
+    tags: ['효과를 느꼈어요', '다시 받고 싶어요', '추천하고 싶어요', '꾸준히 하게 돼요'],
+  },
+];
+
 export const DIFFICULTY_LEVELS = [
   { value: 1, label: '매우 쉬움' },
   { value: 2, label: '쉬움' },

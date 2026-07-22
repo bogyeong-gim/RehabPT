@@ -47,6 +47,21 @@ export interface Feedback {
   createdAt: Timestamp;
 }
 
+export interface ReviewAnswer {
+  question: string;
+  rating: number; // 1-5
+  tags: string[];
+}
+
+export interface Review {
+  id: string;
+  patientId: string;
+  therapistId: string;
+  answers: ReviewAnswer[];
+  overallRating: number; // 평균 별점
+  createdAt: Timestamp;
+}
+
 export interface ChatRoom {
   id: string;
   participants: string[];

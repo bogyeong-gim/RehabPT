@@ -91,6 +91,25 @@ service cloud.firestore {
       );
     }
 
+    // ---------- 치료 리뷰 ----------
+    match /reviews/{reviewId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.therapistId == request.auth.uid ||
+        isAdmin()
+      );
+
+      // 생성: 환자가 본인 명의로만
+      allow create: if isSignedIn()
+        && request.resource.data.patientId == request.auth.uid;
+
+      // 리뷰는 수정 불가, 삭제는 본인 또는 관리자
+      allow update: if false;
+      allow delete: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid || isAdmin()
+      );
+    }
+
     // ---------- 운동 영상 ----------
     match /videos/{videoId} {
       allow read: if isSignedIn();                       // 로그인 사용자 열람

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Card, Title, Text, Button, Avatar } from 'react-native-paper';
 import { COLORS, SPACING, RADIUS, SHADOWS, TYPO } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
@@ -101,6 +101,16 @@ export default function PatientHomeScreen({ navigation }: any) {
             </Card>
           ))
         )}
+
+        {/* 치료 리뷰 CTA */}
+        <Pressable style={styles.reviewCta} onPress={() => navigation.navigate('Review')}>
+          <Avatar.Icon size={44} icon="star-outline" color={COLORS.warning} style={{ backgroundColor: COLORS.tintAmber }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.reviewCtaTitle}>치료는 어떠셨나요?</Text>
+            <Text style={styles.reviewCtaDesc}>별점과 태그로 가볍게 리뷰를 남겨주세요.</Text>
+          </View>
+          <Avatar.Icon size={28} icon="chevron-right" color={COLORS.textLight} style={{ backgroundColor: 'transparent' }} />
+        </Pressable>
 
         <Text style={[styles.sectionTitle, { marginTop: SPACING.xl }]}>빠른 메뉴</Text>
         <View style={styles.menuRow}>
@@ -207,6 +217,19 @@ const styles = StyleSheet.create({
   statusBadgeText: { color: COLORS.white, fontSize: 12, fontWeight: '600' },
   scheduleDesc: { ...TYPO.bodySm, color: COLORS.textSecondary, marginTop: SPACING.xs },
   exerciseCount: { ...TYPO.bodySm, color: COLORS.primary, fontWeight: '600', marginTop: SPACING.sm },
+  reviewCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: SPACING.md,
+    ...SHADOWS.sm,
+  },
+  reviewCtaTitle: { ...TYPO.h3, color: COLORS.textPrimary },
+  reviewCtaDesc: { ...TYPO.bodySm, color: COLORS.textSecondary, marginTop: 2 },
   menuRow: { flexDirection: 'row', gap: SPACING.md },
   menuCard: {
     flex: 1,
