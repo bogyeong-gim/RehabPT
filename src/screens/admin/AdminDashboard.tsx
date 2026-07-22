@@ -45,21 +45,21 @@ export default function AdminDashboard({ navigation }: any) {
       </View>
 
       <View style={styles.statsRow}>
-        <Card style={[styles.statCard, { backgroundColor: '#E3F2FD' }]}>
+        <Card style={[styles.statCard, { backgroundColor: COLORS.tintTeal }]}>
           <Card.Content style={styles.statContent}>
             <Avatar.Icon size={36} icon="account" style={{ backgroundColor: COLORS.primary }} />
             <Text style={styles.statNumber}>{stats.patients}</Text>
             <Text style={styles.statLabel}>환자</Text>
           </Card.Content>
         </Card>
-        <Card style={[styles.statCard, { backgroundColor: '#E8F5E9' }]}>
+        <Card style={[styles.statCard, { backgroundColor: COLORS.tintGreen }]}>
           <Card.Content style={styles.statContent}>
             <Avatar.Icon size={36} icon="doctor" style={{ backgroundColor: COLORS.success }} />
             <Text style={[styles.statNumber, { color: COLORS.success }]}>{stats.therapists}</Text>
             <Text style={styles.statLabel}>치료사</Text>
           </Card.Content>
         </Card>
-        <Card style={[styles.statCard, { backgroundColor: '#FFF3E0' }]}>
+        <Card style={[styles.statCard, { backgroundColor: COLORS.tintAmber }]}>
           <Card.Content style={styles.statContent}>
             <Avatar.Icon size={36} icon="calendar" style={{ backgroundColor: COLORS.warning }} />
             <Text style={[styles.statNumber, { color: COLORS.warning }]}>{stats.schedules}</Text>

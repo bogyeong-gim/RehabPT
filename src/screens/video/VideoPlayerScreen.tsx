@@ -51,6 +51,6 @@ const styles = StyleSheet.create({
   categoryChip: { alignSelf: 'flex-start', marginBottom: 8 },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 8 },
   description: { fontSize: 15, color: COLORS.textSecondary, lineHeight: 22 },
-  noticeCard: { marginTop: 20, backgroundColor: '#FFF3E0', borderRadius: 12 },
+  noticeCard: { marginTop: 20, backgroundColor: COLORS.tintAmber, borderRadius: 12 },
   noticeText: { color: COLORS.warning, textAlign: 'center', lineHeight: 22 },
 });

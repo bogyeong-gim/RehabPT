@@ -100,11 +100,44 @@ export const getStatusLabel = (status: string): string => {
   }
 };
 
+/** 해당 날짜가 속한 주의 월요일 00:00 을 반환 */
+export const getWeekStart = (date: Date): Date => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay(); // 0(일)~6(토)
+  const diff = day === 0 ? -6 : 1 - day; // 월요일 기준
+  d.setDate(d.getDate() + diff);
+  return d;
+};
+
+/** 주 시작일로부터 7일(월~일) 배열 */
+export const getWeekDays = (weekStart: Date): Date[] =>
+  Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+
+export const WEEKDAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
+
+/** 24시간 정수를 "오전 9시" / "오후 1시" 형태로 */
+export const formatHour = (hour: number): string => {
+  const period = hour < 12 ? '오전' : '오후';
+  const h = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+  return `${period} ${h}시`;
+};
+
+/** 두 날짜가 같은 '연-월-일' 인지 */
+export const isSameDay = (a: Date, b: Date): boolean =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
+
 export const getStatusColor = (status: string): string => {
   switch (status) {
-    case 'pending': return '#FFC107';
-    case 'completed': return '#28A745';
-    case 'missed': return '#DC3545';
-    default: return '#6C757D';
+    case 'pending': return '#D99A4E';
+    case 'completed': return '#3AA76D';
+    case 'missed': return '#D2664F';
+    default: return '#5F6B68';
   }
 };

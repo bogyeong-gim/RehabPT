@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Card, Title, Text, Button, Avatar, Divider } from 'react-native-paper';
-import { COLORS } from '../../utils/constants';
+import { Card, Title, Text, Button, Avatar } from 'react-native-paper';
+import { COLORS, SPACING, RADIUS, SHADOWS, TYPO } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
 import { useScheduleStore } from '../../store/scheduleStore';
 import { subscribeToSchedules } from '../../services/scheduleService';
-import { formatDate, getStatusLabel, getStatusColor } from '../../utils/helpers';
+import { getStatusLabel, getStatusColor } from '../../utils/helpers';
 import { logoutUser } from '../../services/authService';
-import { Schedule } from '../../types';
 
 export default function PatientHomeScreen({ navigation }: any) {
   const user = useAuthStore((s) => s.user);
@@ -39,144 +38,184 @@ export default function PatientHomeScreen({ navigation }: any) {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>안녕하세요,</Text>
-          <Title style={styles.userName}>{user?.name}님</Title>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: SPACING.xxl }}>
+      {/* 딥 틸 히어로 */}
+      <View style={styles.hero}>
+        <View style={styles.heroTop}>
+          <View>
+            <Text style={styles.greeting}>안녕하세요</Text>
+            <Title style={styles.userName}>{user?.name}님</Title>
+          </View>
+          <Button
+            mode="text"
+            onPress={handleLogout}
+            textColor="rgba(255,255,255,0.85)"
+            compact
+          >
+            로그아웃
+          </Button>
         </View>
-        <Button mode="text" onPress={handleLogout} textColor={COLORS.textSecondary}>
-          로그아웃
-        </Button>
-      </View>
+        <Text style={styles.heroSub}>오늘도 꾸준히 회복해 나가요.</Text>
 
-      <View style={styles.statsRow}>
-        <Card style={[styles.statCard, { backgroundColor: '#E3F2FD' }]}>
-          <Card.Content style={styles.statContent}>
+        {/* 히어로 위에 얹히는 스탯 */}
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
             <Text style={styles.statNumber}>{pendingCount}</Text>
             <Text style={styles.statLabel}>예정된 운동</Text>
-          </Card.Content>
-        </Card>
-        <Card style={[styles.statCard, { backgroundColor: '#E8F5E9' }]}>
-          <Card.Content style={styles.statContent}>
+          </View>
+          <View style={styles.statCard}>
             <Text style={[styles.statNumber, { color: COLORS.success }]}>{completedCount}</Text>
             <Text style={styles.statLabel}>완료한 운동</Text>
-          </Card.Content>
-        </Card>
+          </View>
+        </View>
       </View>
 
-      <Title style={styles.sectionTitle}>오늘의 운동</Title>
-      {todaySchedules.length === 0 ? (
-        <Card style={styles.emptyCard}>
-          <Card.Content>
-            <Text style={styles.emptyText}>오늘 예정된 운동이 없습니다.</Text>
-          </Card.Content>
-        </Card>
-      ) : (
-        todaySchedules.map((schedule) => (
-          <Card
-            key={schedule.id}
-            style={styles.scheduleCard}
-            onPress={() => navigation.navigate('Schedule', { scheduleId: schedule.id })}
-          >
+      <View style={styles.body}>
+        <Text style={styles.sectionTitle}>오늘의 운동</Text>
+        {todaySchedules.length === 0 ? (
+          <Card style={styles.emptyCard} mode="contained">
             <Card.Content>
-              <View style={styles.scheduleHeader}>
-                <Title style={styles.scheduleTitle}>{schedule.title}</Title>
-                <Text
-                  style={[styles.statusBadge, { backgroundColor: getStatusColor(schedule.status) }]}
-                >
-                  {getStatusLabel(schedule.status)}
-                </Text>
-              </View>
-              <Text style={styles.scheduleDesc}>{schedule.description}</Text>
-              <Text style={styles.exerciseCount}>
-                운동 {schedule.exercises.length}개
-              </Text>
+              <Text style={styles.emptyText}>오늘 예정된 운동이 없습니다.</Text>
             </Card.Content>
           </Card>
-        ))
-      )}
+        ) : (
+          todaySchedules.map((schedule) => (
+            <Card
+              key={schedule.id}
+              style={styles.scheduleCard}
+              mode="contained"
+              onPress={() => navigation.navigate('Schedule', { scheduleId: schedule.id })}
+            >
+              <Card.Content>
+                <View style={styles.scheduleHeader}>
+                  <Title style={styles.scheduleTitle}>{schedule.title}</Title>
+                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(schedule.status) }]}>
+                    <Text style={styles.statusBadgeText}>{getStatusLabel(schedule.status)}</Text>
+                  </View>
+                </View>
+                {!!schedule.description && (
+                  <Text style={styles.scheduleDesc}>{schedule.description}</Text>
+                )}
+                <Text style={styles.exerciseCount}>운동 {schedule.exercises.length}개</Text>
+              </Card.Content>
+            </Card>
+          ))
+        )}
 
-      <Title style={styles.sectionTitle}>빠른 메뉴</Title>
-      <View style={styles.menuRow}>
-        <Card style={styles.menuCard} onPress={() => navigation.navigate('ScheduleTab')}>
-          <Card.Content style={styles.menuContent}>
-            <Avatar.Icon size={40} icon="calendar" style={{ backgroundColor: COLORS.primary }} />
-            <Text style={styles.menuLabel}>전체 스케줄</Text>
-          </Card.Content>
-        </Card>
-        <Card style={styles.menuCard} onPress={() => navigation.navigate('ChatTab')}>
-          <Card.Content style={styles.menuContent}>
-            <Avatar.Icon size={40} icon="chat" style={{ backgroundColor: COLORS.success }} />
-            <Text style={styles.menuLabel}>메시지</Text>
-          </Card.Content>
-        </Card>
-        <Card style={styles.menuCard} onPress={() => navigation.navigate('VideoTab')}>
-          <Card.Content style={styles.menuContent}>
-            <Avatar.Icon size={40} icon="play-circle" style={{ backgroundColor: COLORS.warning }} />
-            <Text style={styles.menuLabel}>운동 영상</Text>
-          </Card.Content>
-        </Card>
+        <Text style={[styles.sectionTitle, { marginTop: SPACING.xl }]}>빠른 메뉴</Text>
+        <View style={styles.menuRow}>
+          <MenuItem
+            icon="calendar-month-outline"
+            tint={COLORS.tintTeal}
+            color={COLORS.primary}
+            label="전체 스케줄"
+            onPress={() => navigation.navigate('ScheduleTab')}
+          />
+          <MenuItem
+            icon="chat-outline"
+            tint={COLORS.tintGreen}
+            color={COLORS.success}
+            label="메시지"
+            onPress={() => navigation.navigate('ChatTab')}
+          />
+          <MenuItem
+            icon="play-circle-outline"
+            tint={COLORS.tintAmber}
+            color={COLORS.warning}
+            label="운동 영상"
+            onPress={() => navigation.navigate('VideoTab')}
+          />
+        </View>
       </View>
     </ScrollView>
   );
 }
 
+function MenuItem({ icon, tint, color, label, onPress }: any) {
+  return (
+    <Card style={styles.menuCard} mode="contained" onPress={onPress}>
+      <Card.Content style={styles.menuContent}>
+        <Avatar.Icon size={48} icon={icon} color={color} style={{ backgroundColor: tint }} />
+        <Text style={styles.menuLabel}>{label}</Text>
+      </Card.Content>
+    </Card>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: {
+  hero: {
+    backgroundColor: COLORS.ink,
+    paddingTop: 64,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xl,
+    borderBottomLeftRadius: RADIUS.xl,
+    borderBottomRightRadius: RADIUS.xl,
+  },
+  heroTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 16,
+    alignItems: 'flex-start',
   },
-  greeting: { fontSize: 14, color: COLORS.textSecondary },
-  userName: { fontSize: 24, fontWeight: 'bold', color: COLORS.textPrimary },
+  greeting: { ...TYPO.bodySm, color: 'rgba(255,255,255,0.7)' },
+  userName: { ...TYPO.h1, color: COLORS.white, marginTop: 2 },
+  heroSub: { ...TYPO.body, color: 'rgba(255,255,255,0.75)', marginTop: SPACING.xs },
   statsRow: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    gap: 12,
-    marginBottom: 24,
+    gap: SPACING.md,
+    marginTop: SPACING.lg,
   },
-  statCard: { flex: 1, borderRadius: 12, elevation: 0 },
-  statContent: { alignItems: 'center', paddingVertical: 16 },
-  statNumber: { fontSize: 28, fontWeight: 'bold', color: COLORS.primary },
-  statLabel: { fontSize: 13, color: COLORS.textSecondary, marginTop: 4 },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    paddingHorizontal: 20,
-    marginBottom: 12,
-    color: COLORS.textPrimary,
+  statCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
   },
-  emptyCard: { marginHorizontal: 20, marginBottom: 24, borderRadius: 12 },
-  emptyText: { textAlign: 'center', color: COLORS.textSecondary, paddingVertical: 12 },
-  scheduleCard: { marginHorizontal: 20, marginBottom: 10, borderRadius: 12 },
+  statNumber: { fontSize: 30, fontWeight: '700', color: COLORS.white },
+  statLabel: { ...TYPO.caption, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
+  body: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xl },
+  sectionTitle: { ...TYPO.h2, color: COLORS.textPrimary, marginBottom: SPACING.md },
+  emptyCard: {
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  emptyText: { textAlign: 'center', color: COLORS.textSecondary, paddingVertical: SPACING.md },
+  scheduleCard: {
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: SPACING.sm,
+    ...SHADOWS.sm,
+  },
   scheduleHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  scheduleTitle: { fontSize: 16, fontWeight: '600' },
+  scheduleTitle: { ...TYPO.h3, color: COLORS.textPrimary },
   statusBadge: {
-    color: COLORS.white,
-    fontSize: 12,
-    paddingHorizontal: 10,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACING.sm + 2,
     paddingVertical: 3,
-    borderRadius: 12,
-    overflow: 'hidden',
   },
-  scheduleDesc: { color: COLORS.textSecondary, marginTop: 4, fontSize: 13 },
-  exerciseCount: { color: COLORS.primary, marginTop: 8, fontSize: 13 },
-  menuRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    gap: 12,
-    marginBottom: 40,
+  statusBadgeText: { color: COLORS.white, fontSize: 12, fontWeight: '600' },
+  scheduleDesc: { ...TYPO.bodySm, color: COLORS.textSecondary, marginTop: SPACING.xs },
+  exerciseCount: { ...TYPO.bodySm, color: COLORS.primary, fontWeight: '600', marginTop: SPACING.sm },
+  menuRow: { flexDirection: 'row', gap: SPACING.md },
+  menuCard: {
+    flex: 1,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.sm,
   },
-  menuCard: { flex: 1, borderRadius: 12 },
-  menuContent: { alignItems: 'center', paddingVertical: 16 },
-  menuLabel: { fontSize: 13, marginTop: 8, color: COLORS.textPrimary },
+  menuContent: { alignItems: 'center', paddingVertical: SPACING.md },
+  menuLabel: { ...TYPO.caption, color: COLORS.textPrimary, marginTop: SPACING.sm, textAlign: 'center' },
 });

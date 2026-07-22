@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, Alert, ScrollView } from 'react-native';
-import { TextInput, Button, Text, Title, SegmentedButtons } from 'react-native-paper';
-import { COLORS } from '../../utils/constants';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { TextInput, Button, Text, Title, SegmentedButtons, Avatar } from 'react-native-paper';
+import { COLORS, SPACING, RADIUS, TYPO } from '../../utils/constants';
 import { registerUser } from '../../services/authService';
 import { useAuthStore } from '../../store/authStore';
 import { UserRole } from '../../types';
@@ -15,19 +15,21 @@ export default function RegisterScreen({ navigation }: any) {
   const [role, setRole] = useState<UserRole>('patient');
   const [loading, setLoading] = useState(false);
   const [secureText, setSecureText] = useState(true);
+  const [error, setError] = useState('');
   const setUser = useAuthStore((s) => s.setUser);
 
   const handleRegister = async () => {
+    setError('');
     if (!email || !password || !name || !phone) {
-      Alert.alert('알림', '모든 항목을 입력해주세요.');
+      setError('모든 항목을 입력해주세요.');
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('알림', '비밀번호가 일치하지 않습니다.');
+      setError('비밀번호가 일치하지 않습니다.');
       return;
     }
     if (password.length < 6) {
-      Alert.alert('알림', '비밀번호는 6자 이상이어야 합니다.');
+      setError('비밀번호는 6자 이상이어야 합니다.');
       return;
     }
 
@@ -35,14 +37,19 @@ export default function RegisterScreen({ navigation }: any) {
     try {
       const user = await registerUser(email.trim(), password, name, phone, role);
       setUser(user);
-    } catch (error: any) {
+    } catch (e: any) {
+      const code = e?.code || '';
       const message =
-        error.code === 'auth/email-already-in-use'
+        code === 'auth/email-already-in-use'
           ? '이미 사용 중인 이메일입니다.'
-          : error.code === 'auth/invalid-email'
+          : code === 'auth/invalid-email'
             ? '유효하지 않은 이메일 형식입니다.'
-            : '회원가입에 실패했습니다.';
-      Alert.alert('회원가입 실패', message);
+            : code === 'auth/weak-password'
+              ? '비밀번호가 너무 약합니다. 6자 이상으로 설정해주세요.'
+              : code === 'auth/network-request-failed'
+                ? '네트워크 연결을 확인해주세요.'
+                : '회원가입에 실패했습니다. 다시 시도해주세요.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -55,6 +62,13 @@ export default function RegisterScreen({ navigation }: any) {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Title style={styles.title}>회원가입</Title>
+
+        {!!error && (
+          <View style={styles.errorBanner}>
+            <Avatar.Icon size={22} icon="alert-circle-outline" color={COLORS.danger} style={styles.errorIcon} />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
 
         <Text style={styles.label}>역할 선택</Text>
         <SegmentedButtons
@@ -178,6 +192,20 @@ const styles = StyleSheet.create({
   segmented: {
     marginBottom: 20,
   },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.tintRose,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.danger,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.sm + 2,
+    marginBottom: SPACING.md,
+    gap: SPACING.sm,
+  },
+  errorIcon: { backgroundColor: 'transparent' },
+  errorText: { ...TYPO.bodySm, color: COLORS.danger, flex: 1, fontWeight: '500' },
   input: {
     marginBottom: 14,
     backgroundColor: COLORS.white,

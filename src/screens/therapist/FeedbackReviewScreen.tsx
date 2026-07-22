@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   divider: { marginVertical: 10 },
   memoLabel: { fontSize: 13, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 4 },
   memoText: { fontSize: 14, color: COLORS.textPrimary },
-  commentBox: { backgroundColor: '#E8F5E9', padding: 10, borderRadius: 8 },
+  commentBox: { backgroundColor: COLORS.tintGreen, padding: 10, borderRadius: 8 },
   commentLabel: { fontSize: 12, fontWeight: '600', color: COLORS.success, marginBottom: 2 },
   commentText: { fontSize: 14, color: COLORS.textPrimary },
   commentInput: { backgroundColor: COLORS.white, marginBottom: 8 },

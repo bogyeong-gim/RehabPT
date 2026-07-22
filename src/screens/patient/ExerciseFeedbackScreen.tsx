@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: 'bold', color: COLORS.textPrimary },
   subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 20 },
   commentCard: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: COLORS.tintGreen,
     marginBottom: 20,
     borderRadius: 12,
   },
