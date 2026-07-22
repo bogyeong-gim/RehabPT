@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Text, IconButton, Button, Chip, Avatar } from 'react-native-paper';
+import { Text, IconButton, Button } from 'react-native-paper';
 import { COLORS, SPACING, RADIUS, SHADOWS, TYPO, REVIEW_QUESTIONS, RATING_LABELS } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
 import { createReview } from '../../services/reviewService';

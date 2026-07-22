@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, FlatList } from 'react-native';
 import {
-  Text, Searchbar, FAB, Portal, Modal, TextInput, Button, Chip, Avatar, IconButton,
+  Text, Searchbar, FAB, Portal, Modal, TextInput, Button, Chip, Avatar,
 } from 'react-native-paper';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
