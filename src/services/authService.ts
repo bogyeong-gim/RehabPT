@@ -1,6 +1,7 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
   User as FirebaseUser,
@@ -63,6 +64,18 @@ export const loginUser = async (email: string, password: string): Promise<User> 
 
 export const logoutUser = async (): Promise<void> => {
   await signOut(auth);
+};
+
+export const sendPasswordReset = async (email: string): Promise<void> => {
+  await sendPasswordResetEmail(auth, email.trim());
+};
+
+/** 본인 프로필(이름·전화) 수정 */
+export const updateProfile = async (
+  userId: string,
+  data: { name?: string; phone?: string },
+): Promise<void> => {
+  await updateDoc(doc(db, 'users', userId), data);
 };
 
 export const getCurrentUser = async (uid: string): Promise<User | null> => {

@@ -1,17 +1,15 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Card, Title, Text, Button, Avatar } from 'react-native-paper';
+import { Card, Title, Text, Avatar, IconButton } from 'react-native-paper';
 import { COLORS, SPACING, RADIUS, SHADOWS, TYPO } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
 import { useScheduleStore } from '../../store/scheduleStore';
 import { subscribeToSchedules } from '../../services/scheduleService';
 import { getStatusLabel, getStatusColor } from '../../utils/helpers';
-import { logoutUser } from '../../services/authService';
 
 export default function PatientHomeScreen({ navigation }: any) {
   const user = useAuthStore((s) => s.user);
   const { schedules, setSchedules } = useScheduleStore();
-  const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
     if (!user) return;
@@ -32,11 +30,6 @@ export default function PatientHomeScreen({ navigation }: any) {
   const pendingCount = schedules.filter((s) => s.status === 'pending').length;
   const completedCount = schedules.filter((s) => s.status === 'completed').length;
 
-  const handleLogout = async () => {
-    await logoutUser();
-    logout();
-  };
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: SPACING.xxl }}>
       {/* 딥 틸 히어로 */}
@@ -46,14 +39,12 @@ export default function PatientHomeScreen({ navigation }: any) {
             <Text style={styles.greeting}>안녕하세요</Text>
             <Title style={styles.userName}>{user?.name}님</Title>
           </View>
-          <Button
-            mode="text"
-            onPress={handleLogout}
-            textColor="rgba(255,255,255,0.85)"
-            compact
-          >
-            로그아웃
-          </Button>
+          <IconButton
+            icon="account-circle-outline"
+            size={28}
+            iconColor="rgba(255,255,255,0.9)"
+            onPress={() => navigation.navigate('Profile')}
+          />
         </View>
         <Text style={styles.heroSub}>오늘도 꾸준히 회복해 나가요.</Text>
 

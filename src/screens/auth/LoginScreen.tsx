@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { TextInput, Button, Text, Avatar } from 'react-native-paper';
 import { COLORS, SPACING, RADIUS, TYPO } from '../../utils/constants';
-import { loginUser } from '../../services/authService';
+import { loginUser, sendPasswordReset } from '../../services/authService';
 import { useAuthStore } from '../../store/authStore';
 
 export default function LoginScreen({ navigation }: any) {
@@ -11,7 +11,23 @@ export default function LoginScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [secureText, setSecureText] = useState(true);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const setUser = useAuthStore((s) => s.setUser);
+
+  const handleReset = async () => {
+    setError('');
+    setNotice('');
+    if (!email) {
+      setError('비밀번호를 재설정할 이메일을 입력해주세요.');
+      return;
+    }
+    try {
+      await sendPasswordReset(email);
+      setNotice('비밀번호 재설정 메일을 보냈습니다. 메일함을 확인해주세요.');
+    } catch {
+      setNotice('재설정 메일 요청을 접수했습니다. 가입된 이메일이면 메일이 도착합니다.');
+    }
+  };
 
   const handleLogin = async () => {
     setError('');
@@ -66,6 +82,12 @@ export default function LoginScreen({ navigation }: any) {
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
+        {!!notice && (
+          <View style={styles.noticeBanner}>
+            <Avatar.Icon size={22} icon="email-check-outline" color={COLORS.primary} style={styles.errorIcon} />
+            <Text style={styles.noticeText}>{notice}</Text>
+          </View>
+        )}
 
         <TextInput
           label="이메일"
@@ -115,6 +137,14 @@ export default function LoginScreen({ navigation }: any) {
           textColor={COLORS.textSecondary}
         >
           계정이 없으신가요?  회원가입
+        </Button>
+        <Button
+          mode="text"
+          onPress={handleReset}
+          textColor={COLORS.textLight}
+          compact
+        >
+          비밀번호를 잊으셨나요?
         </Button>
       </View>
     </KeyboardAvoidingView>
@@ -166,6 +196,19 @@ const styles = StyleSheet.create({
   },
   errorIcon: { backgroundColor: 'transparent' },
   errorText: { ...TYPO.bodySm, color: COLORS.danger, flex: 1, fontWeight: '500' },
+  noticeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.mint,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.sm + 2,
+    marginBottom: SPACING.md,
+    gap: SPACING.sm,
+  },
+  noticeText: { ...TYPO.bodySm, color: COLORS.primaryDark, flex: 1, fontWeight: '500' },
   input: {
     marginBottom: SPACING.md,
     backgroundColor: COLORS.surface,

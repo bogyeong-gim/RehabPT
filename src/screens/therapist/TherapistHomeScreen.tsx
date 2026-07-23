@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Card, Title, Text, Button, Avatar, Badge } from 'react-native-paper';
+import { Card, Title, Text, Avatar, Badge, IconButton } from 'react-native-paper';
 import { COLORS, SPACING, RADIUS, SHADOWS, TYPO } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
 import { useScheduleStore } from '../../store/scheduleStore';
 import { subscribeToSchedules } from '../../services/scheduleService';
-import { logoutUser } from '../../services/authService';
 import { getTherapistFeedbacks } from '../../services/feedbackService';
 import { Feedback } from '../../types';
 
 export default function TherapistHomeScreen({ navigation }: any) {
   const user = useAuthStore((s) => s.user);
   const { schedules, setSchedules } = useScheduleStore();
-  const logout = useAuthStore((s) => s.logout);
   const [recentFeedbacks, setRecentFeedbacks] = useState<Feedback[]>([]);
 
   useEffect(() => {
@@ -37,11 +35,6 @@ export default function TherapistHomeScreen({ navigation }: any) {
   const totalPatients = new Set(schedules.map((s) => s.patientId)).size;
   const pendingFeedbacks = recentFeedbacks.filter((f) => !f.therapistComment).length;
 
-  const handleLogout = async () => {
-    await logoutUser();
-    logout();
-  };
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: SPACING.xxl }}>
       <View style={styles.hero}>
@@ -50,9 +43,12 @@ export default function TherapistHomeScreen({ navigation }: any) {
             <Text style={styles.greeting}>안녕하세요</Text>
             <Title style={styles.userName}>{user?.name} 치료사님</Title>
           </View>
-          <Button mode="text" onPress={handleLogout} textColor="rgba(255,255,255,0.85)" compact>
-            로그아웃
-          </Button>
+          <IconButton
+            icon="account-circle-outline"
+            size={28}
+            iconColor="rgba(255,255,255,0.9)"
+            onPress={() => navigation.navigate('Profile')}
+          />
         </View>
 
         <View style={styles.statsRow}>
